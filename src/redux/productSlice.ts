@@ -3,27 +3,35 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { Product } from '../types';
 import { fetchProducts as fetchProductsAPI, fetchCategories as fetchCategoriesAPI } from '../api/productService';
-import { RootState } from './store'; // Import RootState
+import { RootState } from './store';
 
-// 1. UPDATE THE STATE SHAPE
+// --- CONSTANTS AND TYPES ---
+type SortOrder = 'default' | 'price-asc' | 'price-desc';
+export const ITEMS_PER_PAGE = 8;
+
+// --- STATE INTERFACE ---
 interface ProductsState {
   items: Product[];
-  categories: string[]; // <-- ADDED
-  selectedCategory: string | null; // <-- ADDED
+  categories: string[];
+  selectedCategory: string | null;
+  sortOrder: SortOrder;
+  currentPage: number;
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
 }
 
-// 2. UPDATE THE INITIAL STATE
+// --- INITIAL STATE ---
 const initialState: ProductsState = {
   items: [],
-  categories: [], // <-- ADDED
-  selectedCategory: null, // <-- ADDED
+  categories: [],
+  selectedCategory: null,
+  sortOrder: 'default',
+  currentPage: 1,
   status: 'idle',
   error: null,
 };
 
-// --- EXISTING THUNK (no change) ---
+// --- ASYNC THUNKS (The part that was causing errors) ---
 export const fetchProductsAsync = createAsyncThunk(
   'products/fetchProducts',
   async () => {
@@ -32,7 +40,6 @@ export const fetchProductsAsync = createAsyncThunk(
   }
 );
 
-// 3. --- ADD NEW ASYNC THUNK FOR CATEGORIES ---
 export const fetchCategoriesAsync = createAsyncThunk(
   'products/fetchCategories',
   async () => {
@@ -41,13 +48,21 @@ export const fetchCategoriesAsync = createAsyncThunk(
   }
 );
 
+// --- THE SLICE ---
 const productSlice = createSlice({
   name: 'products',
   initialState,
-  // 4. --- ADD A NEW REDUCER ---
   reducers: {
     setCategory: (state, action: PayloadAction<string | null>) => {
       state.selectedCategory = action.payload;
+      state.currentPage = 1; // Reset page on filter change
+    },
+    setSortOrder: (state, action: PayloadAction<SortOrder>) => {
+      state.sortOrder = action.payload;
+      state.currentPage = 1; // Reset page on sort change
+    },
+    setCurrentPage: (state, action: PayloadAction<number>) => {
+      state.currentPage = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -63,25 +78,40 @@ const productSlice = createSlice({
         state.status = 'failed';
         state.error = action.error.message || 'Something went wrong';
       })
-      // 5. --- HANDLE THE NEW THUNK'S STATES ---
       .addCase(fetchCategoriesAsync.fulfilled, (state, action: PayloadAction<string[]>) => {
         state.categories = action.payload;
       });
   },
 });
 
-// 6. --- EXPORT THE NEW ACTION ---
-export const { setCategory } = productSlice.actions;
+// --- ACTIONS AND SELECTORS ---
+export const { setCategory, setSortOrder, setCurrentPage } = productSlice.actions;
 
-// 7. --- CREATE A MEMOIZED SELECTOR FOR FILTERED PRODUCTS ---
-// This selector computes the filtered list. It's efficient because it
-// only recalculates when the items or selectedCategory change.
-export const selectFilteredProducts = (state: RootState) => {
-  const { items, selectedCategory } = state.products;
-  if (!selectedCategory) {
-    return items; // Return all items if no category is selected
+export const selectPaginatedProducts = (state: RootState) => {
+  const { items, selectedCategory, sortOrder, currentPage } = state.products;
+
+  // Filter
+  const filteredItems = selectedCategory
+    ? items.filter(item => item.category === selectedCategory)
+    : items;
+
+  // Sort
+  const sortedItems = [...filteredItems];
+  if (sortOrder === 'price-asc') {
+    sortedItems.sort((a, b) => a.price - b.price);
+  } else if (sortOrder === 'price-desc') {
+    sortedItems.sort((a, b) => b.price - a.price);
   }
-  return items.filter(item => item.category === selectedCategory);
+
+  // Paginate
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const paginatedItems = sortedItems.slice(startIndex, endIndex);
+
+  return {
+    products: paginatedItems,
+    totalItems: sortedItems.length, // The total count of items *after* filtering/sorting
+  };
 };
 
 export default productSlice.reducer;

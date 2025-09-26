@@ -2,6 +2,7 @@
 
 This project is the final project for the ALX Software Engineering program. It is a fully functional, responsive e-commerce product catalog built with modern frontend technologies. Users can browse, filter, sort, and paginate through products fetched from a live API.
 
+**Live Demo Link:** https://kolo-shop-nj1l0pp4l-stanley2025s-projects.vercel.app/
 
 ## Features
 

@@ -3,15 +3,14 @@
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '../redux/store';
-// --- IMPORT THE NEW SELECTOR ---
 import { fetchProductsAsync, selectPaginatedProducts } from '../redux/productSlice';
 import ProductCard from './ProductCard';
 import { Product } from '../types';
+import ProductCardSkeleton from './ProductCardSkeleton'; // <-- IMPORT
 
 const ProductList: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  // --- UPDATE THIS LINE TO USE THE NEW SELECTOR ---
-  const { products, totalItems } = useSelector(selectPaginatedProducts);
+  const { products } = useSelector(selectPaginatedProducts);
   const { status, error } = useSelector((state: RootState) => state.products);
 
   useEffect(() => {
@@ -19,15 +18,26 @@ const ProductList: React.FC = () => {
       dispatch(fetchProductsAsync());
     }
   }, [status, dispatch]);
-  
-  // ... (loading and error states are the same) ...
 
-  if (products.length === 0 && status === 'succeeded') {
-    return <div className="text-center text-xl mt-10">No products found.</div>;
+  // --- THIS IS THE UPDATED PART ---
+  if (status === 'loading') {
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4">
+        {/* Create an array of 8 items to map over for the skeletons */}
+        {Array.from({ length: 8 }).map((_, index) => (
+          <ProductCardSkeleton key={index} />
+        ))}
+      </div>
+    );
   }
 
-  // The ProductList component itself does not need to change much.
-  // It just renders the products it receives from the selector.
+  if (status === 'failed') {
+    return <div className="text-center text-xl mt-10 text-red-500">{error}</div>;
+  }
+  
+  // ... (rest of the component is the same) ...
+  if (products.length === 0 && status === 'succeeded') { /* ... */ }
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4">
       {products.map((product: Product) => (

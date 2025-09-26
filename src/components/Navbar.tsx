@@ -1,120 +1,34 @@
 // src/components/Navbar.tsx
-import React, { useState } from "react";
+
+import React from 'react';
 
 const Navbar: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(false);
-
   return (
-    <nav className="bg-white shadow-md sticky top-0 z-50">
+    <nav className="bg-white shadow-lg fixed top-0 left-0 right-0 z-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16 items-center">
-          {/* Brand */}
-          <div className="flex items-center space-x-2">
-            <h1 className="text-2xl font-bold text-green-600">KoloShop</h1>
-            <span className="hidden sm:inline text-gray-500 text-sm">
-              Trust & Reliable E-Commerce
-            </span>
+        <div className="flex items-center justify-between h-16">
+          <div className="flex-shrink-0">
+            <h1 className="text-2xl font-bold text-gray-800">KoloShop</h1>
+            <h2 className="text-2x1 font-bold text-blue-800">One Time Shopping</h2>
           </div>
-
-          {/* Desktop Links */}
-          <div className="hidden md:flex items-center space-x-6">
-            <a
-              href="/"
-              className="text-gray-600 hover:text-green-600 font-medium transition-colors"
-            >
-              Home
-            </a>
-            <a
-              href="/categories"
-              className="text-gray-600 hover:text-green-600 font-medium transition-colors"
-            >
-              Categories
-            </a>
-            <a
-              href="/about"
-              className="text-gray-600 hover:text-green-600 font-medium transition-colors"
-            >
-              About
-            </a>
-            <a
-              href="/contact"
-              className="text-gray-600 hover:text-green-600 font-medium transition-colors"
-            >
-              Contact
-            </a>
+          {/* Desktop Menu */}
+          <div className="hidden md:block">
+            <div className="ml-10 flex items-baseline space-x-4">
+              <a href="/" className="text-gray-600 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Home</a>
+              <a href="/" className="text-gray-600 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Categories</a>
+              <a href="/" className="text-gray-600 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">About</a>
+            </div>
           </div>
-
-          {/* Mobile menu button */}
+          {/* Mobile Menu Button */}
           <div className="md:hidden">
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="text-gray-600 hover:text-green-600 focus:outline-none focus:ring-2 focus:ring-green-600 rounded-md"
-            >
-              {isOpen ? (
-                <svg
-                  className="h-6 w-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              ) : (
-                <svg
-                  className="h-6 w-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 6h16M4 12h16M4 18h16"
-                  />
-                </svg>
-              )}
+            <button className="bg-gray-200 text-gray-700 inline-flex items-center justify-center p-2 rounded-md hover:bg-gray-300">
+              <svg className="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7" />
+              </svg>
             </button>
           </div>
         </div>
       </div>
-
-      {/* Mobile Menu */}
-      {isOpen && (
-        <div className="md:hidden px-4 pt-2 pb-4 space-y-1 bg-white shadow-md">
-          <a
-            href="/"
-            className="block text-gray-600 hover:text-green-600 font-medium transition-colors"
-          >
-            Home
-          </a>
-          <a
-            href="/categories"
-            className="block text-gray-600 hover:text-green-600 font-medium transition-colors"
-          >
-            Categories
-          </a>
-          <a
-            href="/about"
-            className="block text-gray-600 hover:text-green-600 font-medium transition-colors"
-          >
-            About
-          </a>
-          <a
-            href="/contact"
-            className="block text-gray-600 hover:text-green-600 font-medium transition-colors"
-          >
-            Contact
-          </a>
-        </div>
-      )}
     </nav>
   );
 };
